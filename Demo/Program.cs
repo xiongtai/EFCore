@@ -22,6 +22,7 @@ namespace Demo
                     Console.WriteLine($" - {blog.Url}");
                 }
             }
+            Console.ReadKey();
         }
     }
 }
