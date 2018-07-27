@@ -2,7 +2,7 @@
 using LinqPad;
 using System.Collections.Generic;
 using System.Linq;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace TestSDKVersion
 {
@@ -10,16 +10,35 @@ namespace TestSDKVersion
     {
         static void Main(string[] args)
         {
-            dynamic query;
-            using (LinqContext db = new LinqContext())
+            using (var db = new LinqContext())
             {
-                query = (from DBBlog in db.Blogs.AsQueryable()
-                             join DBPost in db.Posts.AsQueryable()
-                             on DBBlog.BlogId equals DBPost.BlogId into posts
-                             where posts.Count() > 0
-                             select new { Blog = DBBlog, Posts = posts }).ToList();                
+                var query = from blog in db.Blogs
+                            join post in db.Posts
+                            on blog.Id equals post.BlogId
+                            into posts
+                            where posts.Count() > 0
+                            select new { blog, posts };
+                query.ForEachAsync(item => item.blog.ToString());
+                foreach (var item in query)
+                {
+                    Console.WriteLine(item.blog.ToString());
+                }
+
+                //var posts = db.Posts.Include(p => p.Blog).ToList();
+                //foreach (var blog in blogs)
+                //{
+                //    Console.WriteLine($" ---{blog.Title}--- ");
+                //    if (blog.Posts!=null)
+                //    {
+                //        foreach (var post in blog.Posts)
+                //        {
+                //            Console.WriteLine(post.Description);
+                //        }
+                //    }
+                //}
             }
-            Console.WriteLine("ok");
+
+            Console.WriteLine("success");
             Console.ReadKey();
         }
     }

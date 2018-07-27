@@ -9,5 +9,11 @@ namespace LinqPad
         public int Id { get; set; }
         public int BlogId { get; set; }
         public string Description { get; set; }
+        public virtual Blog Blog { get; set; }
+
+        public override string ToString()
+        {
+            return $"--{Id}--{BlogId} -- {Description}--{Blog.Title}";
+        }
     }
 }
