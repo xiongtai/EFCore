@@ -16,7 +16,7 @@ namespace LinqPad
             loggerFactory.AddProvider(new ConsoleLoggerProvider((category, level) => category == DbLoggerCategory.Database.Command.Name &&
             level == LogLevel.Information, true));
             optionsBuilder.UseLoggerFactory(loggerFactory);
-            //optionsBuilder.UseLazyLoadingProxies();
+            optionsBuilder.UseLazyLoadingProxies();
         }
 
 

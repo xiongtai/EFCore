@@ -10,6 +10,14 @@ namespace TestSDKVersion
     {
         static void Main(string[] args)
         {
+            TestFindMethod();
+
+            Console.WriteLine("success");
+            Console.ReadKey();
+        }
+
+        private static void OutputBlog()
+        {
             using (var db = new LinqContext())
             {
                 var query = from blog in db.Blogs
@@ -37,9 +45,38 @@ namespace TestSDKVersion
                 //    }
                 //}
             }
+        }
 
-            Console.WriteLine("success");
-            Console.ReadKey();
+        private static void TestContainsMethod()
+        {
+            using (var db = new LinqContext())
+            {
+                var query = from blog in db.Blogs
+                            where blog.Title.Contains("second")
+                            select blog;
+                foreach (var blog in query)
+                {
+                    Console.WriteLine(blog.ToString());
+                }
+
+
+            }
+        }
+
+        private static void TestFindMethod()
+        {
+            using (var db = new LinqContext())
+            {
+                var query = (from blog in db.Blogs
+                             select blog).ToList();
+                
+                var test = query.FirstOrDefault(b => b.Title == "blog1");
+                Console.WriteLine(test.Title.ToString());
+
+                var single = db.Blogs.Find(1);
+                Console.WriteLine(single.Title.ToString());
+
+            }
         }
     }
 }
