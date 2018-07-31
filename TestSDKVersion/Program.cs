@@ -3,6 +3,7 @@ using LinqPad;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using LinqPad.SchoolModel;
 
 namespace TestSDKVersion
 {
@@ -10,72 +11,115 @@ namespace TestSDKVersion
     {
         static void Main(string[] args)
         {
-            TestFindMethod();
-
+            TestSchoolModel();
             Console.WriteLine("success");
             Console.ReadKey();
         }
-
-        private static void OutputBlog()
+        private static void TestLocal()
         {
+            int desertSunId;
             using (var db = new LinqContext())
             {
-                var query = from blog in db.Blogs
-                            join post in db.Posts
-                            on blog.Id equals post.BlogId
-                            into posts
-                            where posts.Count() > 0
-                            select new { blog, posts };
-                query.ForEachAsync(item => item.blog.ToString());
-                foreach (var item in query)
+                var startCity = new Club { Name = "Star City Chess Club", City = "New York" };
+                var desertSun = new Club { Name = "Desert Sun Chess Club", City = "Phoenix" };
+                var palmTree = new Club { Name = "Palm Tree Chess Club", City = "San Diego" };
+
+                db.Clubs.Add(startCity);
+                db.Clubs.Add(desertSun);
+                db.Clubs.Add(palmTree);
+                db.SaveChanges();
+                desertSunId = desertSun.ClubId;
+            }
+
+            using (var db = new LinqContext())
+            {
+                Console.WriteLine("\nLocal Collection Behavior");
+                Console.WriteLine("===============");
+                Console.WriteLine($"\nNumber of Clubs Contained in Local Collection:{db.Clubs.Local.Count}");
+                Console.WriteLine("================");
+                Console.WriteLine("\nClubs Retrived from Context Object");
+                Console.WriteLine("================");
+                foreach (var club in db.Clubs.Take(2))
                 {
-                    Console.WriteLine(item.blog.ToString());
+                    Console.WriteLine($"{club.Name} is located in {club.City}");
+                }
+                Console.WriteLine("\nClubs Contained in Context Local Collection");
+                Console.WriteLine("=================");
+                foreach (var club in db.Clubs.Local)
+                {
+                    Console.WriteLine($"{club.Name} is located in {club.City}");
                 }
 
-                //var posts = db.Posts.Include(p => p.Blog).ToList();
-                //foreach (var blog in blogs)
-                //{
-                //    Console.WriteLine($" ---{blog.Title}--- ");
-                //    if (blog.Posts!=null)
-                //    {
-                //        foreach (var post in blog.Posts)
-                //        {
-                //            Console.WriteLine(post.Description);
-                //        }
-                //    }
-                //}
+                db.Clubs.Find(desertSunId);
+                Console.WriteLine("\nClubs Retrived form Context Object - Revisted");
+                Console.WriteLine("===============");
+                foreach (var club in db.Clubs)
+                {
+                    Console.WriteLine($"{club.Name} is located in {club.City}");
+                }
+
+                Console.WriteLine("\nClubs Contained in Context Local Collection - Revisted");
+                Console.WriteLine("==============");
+                foreach (var club in db.Clubs.Local)
+                {
+                    Console.WriteLine($"{club.Name} is localed in {club.City}");
+                }
+
+                var localClubs = db.Clubs.Local;
+                var lonesomePintId = -999;
+                localClubs.Add(new Club
+                {
+                    City = "Portland",
+                    Name = "Lonesone Pine",
+                    ClubId = lonesomePintId
+                });
+
+                localClubs.Remove(db.Clubs.Find(desertSunId));
+                Console.WriteLine("\nClub Contained in Context Object - After Adding and Deleting");
+                Console.WriteLine("=============");
+                foreach (var club in db.Clubs)
+                {
+                    Console.WriteLine($"{club.Name} is located in {club.City} with a Entity State of {db.Entry(club).State}");
+                }
+                Console.WriteLine("\nClubs Contained in Context Local Collection - After Adding and Deleting");
+                Console.WriteLine("=============");
+                foreach (var club in localClubs)
+                {
+                    Console.WriteLine($"{club.Name} is located in {club.City} with a Entity State of {db.Entry(club).State}");
+                }
+                Console.WriteLine("\nPress <enter> to continue");
+                Console.ReadLine();
             }
         }
 
-        private static void TestContainsMethod()
+        private static void TestSchoolModel()
         {
             using (var db = new LinqContext())
             {
-                var query = from blog in db.Blogs
-                            where blog.Title.Contains("second")
-                            select blog;
-                foreach (var blog in query)
-                {
-                    Console.WriteLine(blog.ToString());
-                }
+                var course = new Course { Title = "Biology 101" };
+                var fred = new Instructor { Name = "Fred Jones" };
+                var julia = new Instructor { Name = "Julia Canfield" };
+                var section1 = new Section { Course = course, Instructor = fred };
+                var section2 = new Section { Course = course, Instructor = julia };
 
+                //var jim = new Student { Name = "Jim Roberts" };
+                //jim.sections.Add(section1);
 
-            }
-        }
+                //var jerry = new Student { Name = "Jerry Jones" };
+                //jerry.Sections.Add(section2);
 
-        private static void TestFindMethod()
-        {
-            using (var db = new LinqContext())
-            {
-                var query = (from blog in db.Blogs
-                             select blog).ToList();
-                
-                var test = query.FirstOrDefault(b => b.Title == "blog1");
-                Console.WriteLine(test.Title.ToString());
+                //var susan = new Student { Name = "Susan O'Reilly" };
+                //susan.Sections.Add(section1);
 
-                var single = db.Blogs.Find(1);
-                Console.WriteLine(single.Title.ToString());
+                //var cathy = new Student { Name = "Cathy Ryan" };
+                //cathy.Sections.Add(section2);
 
+               
+                //db.Students.Add(jim);
+                //db.Students.Add(jerry);
+                //db.Students.Add(cathy);
+                //db.Students.Add(susan);
+                //db.SaveChanges();
             }
         }
     }
